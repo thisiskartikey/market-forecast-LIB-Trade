@@ -1,0 +1,155 @@
+rm(list = ls())
+
+# Import datasheet
+
+global_data <- read.csv("Lidatacsv.csv")
+
+# Create a data frame containing LIB Import, price, production: li_kpo
+
+li_kpo <- data.frame(global_data$Year, 
+                     global_data$li_production_global, 
+                     global_data$li_price, 
+                     global_data$li_import_global)
+# have a look at data
+
+pairs(li_kpo)
+
+#using logarithmic scale
+
+log_li_kpo <- data.frame(log(li_kpo[-1]))
+log_li_kpo$Year <- global_data$Year
+pairs(log_li_kpo)
+
+# Observation:
+## Global LIB Import and lithium price followed each other after 2015
+## Global import started after 2010
+## Global Li production dec after 2012 to increase again after 2015
+### After 2015 LIB import and Global Li Production followed each other
+#### 2015 onwards LIB was a major end user industry of Li
+
+# Looking closely at Global Lithium Production and Global LIB imports
+logimport <- log(global_data$li_import_global)
+lilib <- data.frame(Year = global_data$Year, 
+                    "Global Li Production" = global_data$li_production_global, 
+                    "Global LIB Imports" = logimport)
+pairs(lilib)
+plot(global_data$li_production_global, global_data$li_import_global)
+
+# When global Li production reached 40, major Li end user was LIB (li_year)
+
+date_li <- li_kpo$global_data.li_production_global >= 40
+li_year <- li_kpo[date_li, ]
+li_year[, 1]
+
+# LIB increased its share in global Li consumption during (2017 - 2018)
+# Global LIB Import and lithium price followed each other after 2015
+
+# lets check the same about cobalt
+
+colib <- data.frame(Year = global_data$Year, 
+                    "Co Price" = global_data$co_price, 
+                    "Global LIB Imports" = logimport)
+pairs(colib)
+
+# Cobalt price somewhat following LIB imports once the imports were >16.7
+
+plot(global_data$co_price, logimport)
+date_co <- logimport >= 16.7
+co_year <- colib[date_co, ]
+
+# Cobalt production grew parallell with global LIB imports, (2017 - 2018)
+
+
+# Global LIB Import and lithium price followed each other after 2015
+# whereas cobalt prices followed after 2017 & 2018
+## lets check the same about rare earth metals
+rarelib <- data.frame(Year = global_data$Year, 
+                      "Rare Earth Elements Production" = global_data$rare_earth_production_global, 
+                      "Global LIB Imports" = logimport)
+
+
+# Lets check Lithium ore supply network
+
+li_ore1 <- subset(global_data, select = Year:li_production_global)
+pairs(li_ore1) 
+str(li_ore1)
+
+## Countries of Intrest (Those in parallell with Global Li Production)
+## Argentina, Australia, Chile, and China (Had to take China, as only Chinese production dop was seriously in-line with Global production drop during 2012-2015)
+## Brazil increase in 2018
+## After 2012 drop in China till 2017
+## Portugal Drop (2010 - 2015), 2015 onwards production increased
+## US: No significant Increase since 2010
+## Zimbabwe: Li production Drop (2010 - 2015), 2016 onwards production increase
+
+# create a data frame with countries of intrest, Li, LIB imports
+liore_total <- global_data$li_production_global
+liore_select <- global_data$li_production_argentina + 
+                    global_data$li_production_australia + 
+                    global_data$li_production_chile + 
+                    global_data$li_production_china
+liore_others <- liore_total - liore_select
+li_ore <- data.frame(global_data$Year, 
+                     liore_select, 
+                     liore_others, 
+                     liore_total, 
+                     global_data$li_import_global)
+pairs(li_ore)
+plot(liore_select, logimport)
+
+## Select Countries began significant contribution after 2016, 2017, and 2018
+selectli_ore1 <- liore_select >= 35
+global_data[selectli_ore1,1]
+
+# Modify li_ore
+rm(li_ore)
+li_ore <- data.frame(global_data$Year,
+                     global_data$li_production_argentina, 
+                     global_data$li_production_australia, 
+                     global_data$li_production_chile, 
+                     global_data$li_production_china, 
+                     liore_others, 
+                     liore_total, 
+                     logimport)
+pairs(li_ore)
+
+# Ranking Argentina = Australia > Chile, China had an anomaly in parallel with global Li production during 2012 & 2015
+
+# Understanding China
+
+li_china <- global_data[ , grepl("china", names(global_data))]
+li_china$year <- global_data$Year
+li_china$lib_import <- global_data$li_import_global
+
+li_china1 <- subset(li_china, select = 1:5)
+li_china1$lib_import <- global_data$li_import_global
+li_china1$year <- global_data$Year
+
+li_china2 <- subset(li_china, select = 6:10)
+li_china2$lib_import <- global_data$li_import_global
+li_china2$year <- global_data$Year
+
+li_china3 <- subset(li_china, select = 11:15)
+li_china3$lib_import <- global_data$li_import_global
+li_china3$year <- global_data$Year
+
+li_china4 <- subset(li_china, select = 16:20)
+li_china4$lib_import <- global_data$li_import_global
+li_china4$year <- global_data$Year
+
+pairs(li_china1)
+
+# Similar Anamoly 2012-2015 observed:
+## Primary energy consumption China Hong Kong
+
+pairs(li_china2)
+
+## Natural Gas consumption China Hong Kong
+## Coal Price
+
+pairs(li_china3)
+pairs(li_china4)
+
+
+## Pull in China Macroscopic Indicators
+
